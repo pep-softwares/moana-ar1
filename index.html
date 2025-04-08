@@ -1,68 +1,85 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Moana AR Marker</title>
+<head>
+  <meta charset="UTF-8" />
+  <title>Moana AR Viewer</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
 
-    <!-- A-Frame & MindAR -->
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/aframe/mindar-aframe.prod.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+    }
 
-    <style>
-      body { margin: 0; overflow: hidden; }
-      #snapshotBtn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        padding: 10px 15px;
-        background: #e91e63;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 16px;
-        z-index: 999;
-      }
-    </style>
-  </head>
+    #ar-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #ff4081;
+      color: white;
+      font-size: 16px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      z-index: 999;
+      display: none;
+    }
 
-  <body>
-    <button id="snapshotBtn">📸 Capture</button>
+    #snapshot {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #673ab7;
+      color: white;
+      font-size: 16px;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
 
-    <a-scene
-      mindar-image="imageTargetSrc: mind.mind; autoStart: true"
-      color-space="sRGB"
-      embedded
-      renderer="colorManagement: true, physicallyCorrectLights"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-    >
-      <a-assets>
-        <a-asset-item id="moana" src="moana.glb"></a-asset-item>
-      </a-assets>
+<model-viewer
+  id="moana"
+  src="moana.glb"
+  ar
+  ar-modes="scene-viewer webxr quick-look"
+  camera-controls
+  auto-rotate
+  shadow-intensity="1"
+  exposure="1"
+  alt="Moana 3D model"
+></model-viewer>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+<button id="snapshot">📸 Capture</button>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-gltf-model
-          src="#moana"
-          position="0 0 0"
-          scale="1.5 1.5 1.5"
-          rotation="0 0 0"
-        ></a-gltf-model>
-      </a-entity>
-    </a-scene>
+<script>
+  const snapshotBtn = document.getElementById("snapshot");
+  const viewer = document.querySelector("model-viewer");
 
-    <script>
-      document.getElementById("snapshotBtn").addEventListener("click", () => {
-        html2canvas(document.body).then((canvas) => {
-          const link = document.createElement("a");
-          link.download = "moana_ar_snapshot.png";
-          link.href = canvas.toDataURL();
-          link.click();
-        });
-      });
-    </script>
-  </body>
+  snapshotBtn.addEventListener("click", () => {
+    viewer.toBlob().then((blob) => {
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "moana-snapshot.png";
+      link.click();
+    });
+  });
+
+  // Show AR button only on supported devices
+  window.addEventListener("load", () => {
+    if (viewer.canActivateAR) {
+      viewer.activateAR();
+    }
+  });
+</script>
+
+</body>
 </html>
