@@ -1,1 +1,2 @@
-# moana-ar1
+# moana-ar
+Moana AR experience
